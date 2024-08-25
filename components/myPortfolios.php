@@ -1,5 +1,4 @@
 <div class="col-lg-12">
-
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">My Portfolios</h5>

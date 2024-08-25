@@ -78,9 +78,49 @@ if (isset($_POST['action']) || isset($_GET['action'])) {
             if($response){
                 echo json_encode(['message' => $response]);
             }
-
             break;
 
+        case 'addPersonalInfo':
+
+            $selected_portfolio = $_POST['selected_portfolio'];
+            $user_profession = $_POST['user_profession'];
+            $user_name = $_POST['user_name'];
+            $user_email = $_POST['user_email'];
+            $user_dob = $_POST['user_dob'];
+            $user_age = $_POST['user_age'];
+            $user_gender = $_POST['user_gender'];
+            $user_img = '';
+            $user_social_fb = $_POST['user_social_fb'];
+            $user_social_tw = $_POST['user_social_tw'];
+            $user_social_in = $_POST['user_social_in'];
+            $user_address = $_POST['user_address'];
+            $user_cell = $_POST['user_cell'];
+
+            $user_social = $user_social_fb;
+
+            if(!empty($user_social_tw)){
+                $user_social = $user_social . ',' . $user_social_tw;
+            }
+            if (!empty($user_social_in)){
+                $user_social = $user_social . ',' . $user_social_in;
+            }
+            if(!empty($user_social_tw) && !empty($user_social_in)){
+                $user_social = $user_social . ',' . $user_social_tw .','. $user_social_in;
+            }
+
+
+
+            if (isset($_FILES['user_img']) && $_FILES['user_img']['error'] === UPLOAD_ERR_OK){
+                $img = $_FILES['user_img']['tmp_name'];
+                $user_img = file_get_contents($img);
+            }
+
+            $response = $db->addPersonalInfo(
+                $selected_portfolio,$user_profession,$user_name,$user_email,$user_dob,
+                $user_age,$user_gender,$user_img,$user_social,$user_address,$user_cell
+            );
+            echo json_encode(['message' => $response]);
+            break;
         default:
             // Handle unknown actions
             echo json_encode(['message' => 'Invalid action']);

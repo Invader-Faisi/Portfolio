@@ -78,7 +78,8 @@ class Database
 
     function getUsers() {
         try {
-            $stmt = $this->conn->prepare("SELECT user_id, name, username, email, role, plan, status FROM users");
+            $query = "SELECT user_id, name, username, email, role, plan, status FROM users";
+            $stmt = $this->conn->prepare($query);
             $stmt->execute();
             // Fetch all users as an associative array
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -110,10 +111,47 @@ class Database
     }
 
     function addPorfolio($portfolio){
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         unset($_SESSION['portfolio']);
         $_SESSION['portfolio'] = $portfolio;
         return true;
+    }
+
+    function addPersonalInfo($selected_portfolio,$user_profession,$user_name,$user_email,$user_dob,
+        $user_age,$user_gender,$user_img,$user_social,$user_address,$user_cell){
+
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $user_id = $_SESSION['user_id'];
+
+        $query = "INSERT INTO portfolios (user_id, user_portfolio, user_profession, user_name, user_email, user_dob, user_age, user_gender, user_img, user_social, user_address, user_cell) 
+         VALUES (:user_id, :user_portfolio, :user_profession, :user_name, :user_email, :user_dob, :user_age, :user_gender, :user_img, :user_social, :user_address, :user_cell)";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':user_id', $user_id);
+        $stmt->bindParam(':user_portfolio', $selected_portfolio);
+        $stmt->bindParam(':user_profession', $user_profession);
+        $stmt->bindParam(':user_name', $user_name);
+        $stmt->bindParam(':user_email', $user_email);
+        $stmt->bindParam(':user_dob', $user_dob);
+        $stmt->bindParam(':user_age', $user_age);
+        $stmt->bindParam(':user_gender', $user_gender);
+        $stmt->bindParam(':user_img', $user_img, PDO::PARAM_LOB);
+        $stmt->bindParam(':user_social', $user_social);
+        $stmt->bindParam(':user_address', $user_address);
+        $stmt->bindParam(':user_cell', $user_cell);
+
+        try {
+            $stmt->execute();
+            return "success";
+        } catch (PDOException $e) {
+            error_log($e->getMessage());
+            return ['error' => $e->getMessage()];
+        }
+
     }
 }
 

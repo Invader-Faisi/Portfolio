@@ -1,27 +1,5 @@
 <?php
-$user_name = '';
-$user_dob = '';
-$user_email = '';
-$user_gender = '';
-$user_img = '';
-$user_social_fb = '';
-$user_social_tw = '';
-$user_social_in = '';
-$user_address = '';
-$user_cell = '';
 
-    if(isset($_GET['preview'])){
-        $user_name = $_GET['user_name'];
-        $user_email = $_GET['user_email'];
-        $user_dob = $_GET['user_dob'];
-        $user_gender = $_GET['user_gender'];
-        $user_img = $_GET['user_img'];
-        $user_social_fb = $_GET['user_social_fb'];
-        $user_social_tw = $_GET['user_social_tw'];
-        $user_social_in = $_GET['user_social_in'];
-        $user_address = $_GET['user_address'];
-        $user_cell = $_GET['user_cell'];
-    }
 ?>
 <!DOCTYPE html>
 <html lang="en">

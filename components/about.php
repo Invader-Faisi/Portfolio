@@ -1,3 +1,8 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
 <style>
     /*--------------------------------------------------------------
 # Badges and pills
@@ -34,9 +39,9 @@
             <form>
 
                 <div class="row mb-3">
-                    <label class="col-sm-2 col-form-label">Portfolio</label>
+                    <label for="selected_portfolio" class="col-sm-2 col-form-label">Portfolio</label>
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" value="Portfolio" id="selected_portfolio" readonly>
+                        <input type="text" class="form-control" value="<?php if(isset($_SESSION['portfolio'])){echo $_SESSION['portfolio'];} ?>" id="selected_portfolio" readonly>
                     </div>
                 </div>
 
@@ -45,12 +50,12 @@
                 <hr class="bg-success border-2 border-top border-success mt-2 mb-2" />
 
                 <div class="row mb-3">
-                    <label for="inputText" class="col-sm-2 col-form-label">Skills</label>
+                    <label for="user_skills" class="col-sm-2 col-form-label">Skills</label>
                     <div class="col-sm-5">
                         <input type="text" class="form-control pills-input" id="user_skills" name="user_skills" placeholder="Enter comma separated skills...">
                         <div id="skill_pills" class="mt-2 pills pills-container d-flex flex-wrap"></div>
                     </div>
-                    <label for="inputText" class="col-sm-1 col-form-label">Rating</label>
+                    <label for="user_rate_exp" class="col-sm-1 col-form-label">Rating</label>
                     <div class="col-sm-4">
                         <input type="text" class="form-control pills-input" id="user_rate_exp" name="user_rate_exp" placeholder="Rate your skills out of 100 comma separated ...">
                         <div id="skill_rate_pills" class="mt-2 pills pills-container"></div>
@@ -58,12 +63,12 @@
                 </div>
 
                 <div class="row mb-3">
-                    <label for="inputEmail" class="col-sm-2 col-form-label">Tools</label>
+                    <label for="user_tools" class="col-sm-2 col-form-label">Tools</label>
                     <div class="col-sm-5">
                         <input type="text" class="form-control pills-input" id="user_tools" name="user_tools" placeholder="Enter comma separated tools you have used...">
                         <div id="tool_pills" class="mt-2 pills pills-container d-flex flex-wrap"></div>
                     </div>
-                    <label for="inputEmail" class="col-sm-1 col-form-label">Rating</label>
+                    <label for="user_tool_exp" class="col-sm-1 col-form-label">Rating</label>
                     <div class="col-sm-4">
                         <input type="text" class="form-control pills-input" id="user_tool_exp" name="user_tool_exp" placeholder="Rate your tool out of 100 comma separated ...">
                         <div id="tool_rate_pills" class="mt-2 pills pills-container"></div>
@@ -75,13 +80,13 @@
                 <hr class="bg-success border-2 border-top border-success mt-2 mb-2" />
 
                 <div class="row mb-3">
-                    <label for="inputText" class="col-sm-2 col-form-label">Matric</label>
+                    <label for="user_mertic_subject" class="col-sm-2 col-form-label">Matric</label>
                     <div class="col-sm-10">
                         <input type="text" class="form-control" id="user_mertic_subject" name="user_mertic_subject" placeholder="Enter Subject...">
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <label for="inputText" class="col-sm-2 col-form-label"></label>
+                    <label for="user_metric_marks" class="col-sm-2 col-form-label"></label>
                     <div class="col-sm-2">
                         <input type="number" class="form-control" id="user_metric_marks" name="user_metric_marks" placeholder="Enter Marks...">
                     </div>
@@ -96,14 +101,14 @@
                     </div>
                 </div>
                 <div class="row mb-3">
-                    <label for="inputText" class="col-sm-2 col-form-label">Intermediate</label>
+                    <label for="user_inter_subject" class="col-sm-2 col-form-label">Intermediate</label>
                     <div class="col-sm-10">
                         <input type="text" class="form-control" id="user_inter_subject" name="user_inter_subject" placeholder="Enter Subject...">
                     </div>
                 </div>
 
                 <div class="row mb-3">
-                    <label for="inputText" class="col-sm-2 col-form-label"></label>
+                    <label for="user_inter_marks" class="col-sm-2 col-form-label"></label>
                     <div class="col-sm-2">
                         <input type="number" class="form-control" id="user_inter_marks" name="user_inter_marks" placeholder="Enter Marks...">
                     </div>
@@ -119,14 +124,14 @@
                 </div>
 
                 <div class="row mb-3">
-                    <label for="inputText" class="col-sm-2 col-form-label">Graduation</label>
+                    <label for="user_grad_subject" class="col-sm-2 col-form-label">Graduation</label>
                     <div class="col-sm-10">
                         <input type="text" class="form-control" id="user_grad_subject" name="user_grad_subject" placeholder="Enter Subject...">
                     </div>
                 </div>
 
                 <div class="row mb-3">
-                    <label for="inputText" class="col-sm-2 col-form-label"></label>
+                    <label for="user_grad_marks" class="col-sm-2 col-form-label"></label>
                     <div class="col-sm-2">
                         <input type="number" class="form-control" id="user_grad_marks" name="user_grad_marks" placeholder="Enter Marks...">
                     </div>
@@ -142,14 +147,14 @@
                 </div>
 
                 <div class="row mb-3">
-                    <label for="inputText" class="col-sm-2 col-form-label">University</label>
+                    <label for="user_uni_subject" class="col-sm-2 col-form-label">University</label>
                     <div class="col-sm-10">
                         <input type="text" class="form-control" id="user_uni_subject" name="user_uni_subject" placeholder="Enter Subject...">
                     </div>
                 </div>
 
                 <div class="row mb-3">
-                    <label for="inputText" class="col-sm-2 col-form-label"></label>
+                    <label for="user_uni_marks" class="col-sm-2 col-form-label"></label>
                     <div class="col-sm-2">
                         <input type="number" class="form-control" id="user_uni_marks" name="user_uni_marks" placeholder="Enter Marks...">
                     </div>
@@ -169,14 +174,14 @@
                 <hr class="bg-success border-2 border-top border-success mt-2 mb-2" />
 
                 <div class="row mb-3">
-                    <label for="inputText" class="col-sm-2 col-form-label">Company</label>
+                    <label for="user_professional_desig" class="col-sm-2 col-form-label">Company</label>
                     <div class="col-sm-10">
                         <input type="text" class="form-control" id="user_professional_desig" name="user_professional_desig" placeholder="Enter Designation...">
                     </div>
                 </div>
 
                 <div class="row mb-3">
-                    <label for="inputText" class="col-sm-2 col-form-label"></label>
+                    <label for="user_professional_from" class="col-sm-2 col-form-label"></label>
                     <div class="col-sm-2">
                         <input type="number" min="2000" max="2024" step="1" class="form-control" id="user_professional_from" name="user_professional_from" placeholder="From year...">
                     </div>
@@ -189,7 +194,7 @@
                 </div>
 
                 <div class="row mb-3">
-                    <label for="inputText" class="col-sm-2 col-form-label">Para about your work</label>
+                    <label for="user_professional_exp" class="col-sm-2 col-form-label">Para about your work</label>
                     <div class="col-sm-10">
                         <textarea class="form-control" id="user_professional_exp" name="user_professional_exp" style="height: 150px"></textarea>
                     </div>
@@ -201,16 +206,16 @@
                 <hr class="bg-success border-2 border-top border-success mt-2 mb-2" />
 
                 <div class="row mb-3">
-                    <label for="inputText" class="col-sm-2 col-form-label">Para or 2 about you</label>
+                    <label for="user_self_para" class="col-sm-2 col-form-label">Para or 2 about you</label>
                     <div class="col-sm-10">
-                        <textarea class="form-control" style="height: 150px"></textarea>
+                        <textarea class="form-control" id="user_self_para" name="user_self_para" style="height: 150px"></textarea>
                     </div>
                 </div>
 
                 <div class="row mb-3">
-                    <label class="col-sm-2 col-form-label"></label>
+                    <label for="add_info_btn" class="col-sm-2 col-form-label"></label>
                     <div class="col-sm-10 d-flex align-content-center justify-content-center">
-                        <button type="submit" class="btn btn-primary">Add Info</button>
+                        <button type="submit" class="btn btn-primary" id="add_info_btn">Add Info</button>
                     </div>
                 </div>
 
@@ -224,15 +229,16 @@
 <script>
     $(document).ready(function() {
         $('.pills-input').on('input', function(e) {
-            var input = $(this).val();
-            var pillsContainer = $(this).siblings('.pills-container'); // Correct targeting of the sibling container
+            e.preventDefault();
+            let input = $(this).val();
+            let pillsContainer = $(this).siblings('.pills-container'); // Correct targeting of the sibling container
 
             if (input.includes(',')) {
-                var skills = input.split(',');
-                for (var i = 0; i < skills.length - 1; i++) {
-                    var skill = skills[i].trim();
+                let skills = input.split(',');
+                for (let i = 0; i < skills.length - 1; i++) {
+                    let skill = skills[i].trim();
                     if (skill) {
-                        var pill = $('<span class="badge badge-pill">' + skill + ' <span class="ml-1">&times;</span></span>');
+                        let pill = $('<span class="badge badge-pill">' + skill + ' <span class="ml-1">&times;</span></span>');
                         pillsContainer.append(pill);
                     }
                 }
