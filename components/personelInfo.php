@@ -13,7 +13,25 @@ if (session_status() === PHP_SESSION_NONE) {
                 <div class="row mb-3">
                     <label for="selected_portfolio" class="col-sm-2 col-form-label">Portfolio</label>
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" value="<?php if(isset($_SESSION['portfolio'])){echo $_SESSION['portfolio'];} ?>" id="selected_portfolio" name="selected_portfolio" readonly>
+                        <select class="form-select" aria-label="Default select example" id="selected_portfolio" name="selected_portfolio"">
+                            <?php
+                            if($_SESSION['plan'] == 'Basic'){
+                                echo '<option value="iPortfolio">I Portfolio</option>';
+                            }elseif ($_SESSION['plan'] == 'Silver'){
+                                echo '<option value="">Select Portfolio</option>';
+                                echo '<option value="iPortfolio" >I Portfolio</option>';
+                                echo '<option value="MyResume" >My Resume</option>';
+                                echo '<option value="KFolio" >K Folio</option>';
+                            }elseif ($_SESSION['plan'] == 'Gold'){
+                                echo '<option value="">Select Portfolio</option>';
+                                echo '<option value="iPortfolio" >I Portfolio</option>';
+                                echo '<option value="MyResume" >My Resume</option>';
+                                echo '<option value="KFolio" >K Folio</option>';
+                                echo '<option value="DevFolio" >Dev Folio</option>';
+                                echo '<option value="LauraFolio" >Laura Folio</option>';
+                            }
+                            ?>
+                        </select>
                     </div>
                 </div>
 
@@ -73,7 +91,9 @@ if (session_status() === PHP_SESSION_NONE) {
                     <div class="col-sm-10">
                         <input type="file" id="user_img" name="user_img" accept="image/*" class="form-control">
                     </div>
-                    <div id="user_img_error"></div>
+                    <div id="user_img_error">
+                        <img id="img_preview" src="" alt="Image Preview" style="display:none; max-width: 100px; max-height: 100px; margin-top: 5px;">
+                    </div>
                 </div>
                 <div class="row mb-3">
                     <label for="user_social_fb" class="col-sm-2 col-form-label">Social media's</label>
@@ -105,7 +125,8 @@ if (session_status() === PHP_SESSION_NONE) {
                 <div class="row mb-3">
                     <label for="preview_btn" class="col-sm-2 col-form-label"></label>
                     <div class="col-sm-10 d-flex align-content-center justify-content-around">
-                      <button type="submit" class="btn btn-primary" id="add_info">Add Info</button>
+                        <button type="button" class="btn btn-primary d-none" id="edit_info">Update Info</button>
+                        <button type="submit" class="btn btn-success" id="add_info">Add Info</button>
                     </div>
                 </div>
 
@@ -118,6 +139,71 @@ if (session_status() === PHP_SESSION_NONE) {
 
 <script>
     $(document).ready(function() {
+        // Editing information if already added
+        $.ajax({
+            type: "POST",
+            url: "backend/dbHandler.php",
+            dataType: 'json',
+            data: {action:'getPersonalInfo'},
+            success: function(response) {
+                if (response.message == 'success') {
+                    $('#selected_portfolio').val(response.data.user_portfolio);
+                    $('#user_profession').val(response.data.user_profession);
+                    $('#user_name').val(response.data.user_name);
+                    $('#user_email').val(response.data.user_email);
+                    $('#user_dob').val(response.data.user_dob);
+                    $('#user_age').val(response.data.user_age);
+                    $('input[name="user_gender"][value="' + response.data.user_gender + '"]').prop('checked', true);
+
+                    if(response.data.user_img) {
+                        $('#img_preview').attr('src', response.data.user_img).css('display', 'block');
+                    }
+                    $('#user_social_fb').val(response.data.social_fb);
+                    $('#user_social_tw').val(response.data.social_tw);
+                    $('#user_social_in').val(response.data.social_in);
+                    $('#user_address').val(response.data.user_address);
+                    $('#user_cell').val(response.data.user_cell);
+
+                    if (response.data.user_name) {
+                        $('#edit_info').removeClass('d-none');
+                        $('#add_info').addClass('d-none');
+                    } else {
+                        $('#edit_info').addClass('d-none');
+                        $('#add_info').removeClass('d-none');
+                    }
+
+                } else {
+                    toastr.error('No Old Data found');
+                }
+            },
+            error: function(xhr, status, error) {
+                toastr.error('Database error : ' + error);
+            }
+        });
+
+
+        // Displaying the image
+        $('#user_img').change(function() {
+            var input = this;
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function(e) {
+                    $('#img_preview').attr('src', e.target.result);
+                    $('#img_preview').css('display', 'block');
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                // If no file is selected, hide the image preview
+                $('#img_preview').css('display', 'none');
+            }
+        });
+
+
+
+
+        // Adding information for first time
 
         $('#personal_info_form').on('submit', function(e) {
             e.preventDefault();
@@ -125,6 +211,10 @@ if (session_status() === PHP_SESSION_NONE) {
             let isValid = true;
 
             //Validate the fields
+
+            if($('#selected_portfolio').val().length > 20){
+                alert('Please select any template from dashboard');
+            }
 
             let user_profession = $('#user_profession').val().trim();
             if (user_profession === '') {

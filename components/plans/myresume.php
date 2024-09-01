@@ -1,9 +1,8 @@
 <div class="col-lg-6 col-md-6 col-sm-12">
     <div class="card">
         <div class="card-body">
-            <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center justify-content-start">
                 <h5 class="card-title">My Resume</h5>
-                <button type="button" class="btn select-portfolio" data-id="MyResume" onmouseover="this.style.background = 'green', this.style.color = 'white'" onmouseout="this.style.background = 'white', this.style.color = 'gray'"><i class="bi bi-check-circle"></i></button>
             </div>
 
             <!-- Slides with captions -->
@@ -42,9 +41,7 @@
                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
                     <span class="visually-hidden">Next</span>
                 </button>
-
             </div><!-- End Slides with captions -->
-
         </div>
     </div>
 </div>

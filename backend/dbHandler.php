@@ -71,15 +71,6 @@ if (isset($_POST['action']) || isset($_GET['action'])) {
             echo json_encode(['message' => $response]);
             break;
 
-        case 'addPorfolio':
-            // Collect portfolio
-            $portfolio = $_POST['portfolio'];
-            $response = $db->addPorfolio($portfolio);
-            if($response){
-                echo json_encode(['message' => $response]);
-            }
-            break;
-
         case 'addPersonalInfo':
 
             $selected_portfolio = $_POST['selected_portfolio'];
@@ -96,18 +87,6 @@ if (isset($_POST['action']) || isset($_GET['action'])) {
             $user_address = $_POST['user_address'];
             $user_cell = $_POST['user_cell'];
 
-            $user_social = $user_social_fb;
-
-            if(!empty($user_social_tw)){
-                $user_social = $user_social . ',' . $user_social_tw;
-            }
-            if (!empty($user_social_in)){
-                $user_social = $user_social . ',' . $user_social_in;
-            }
-            if(!empty($user_social_tw) && !empty($user_social_in)){
-                $user_social = $user_social . ',' . $user_social_tw .','. $user_social_in;
-            }
-
 
 
             if (isset($_FILES['user_img']) && $_FILES['user_img']['error'] === UPLOAD_ERR_OK){
@@ -117,9 +96,118 @@ if (isset($_POST['action']) || isset($_GET['action'])) {
 
             $response = $db->addPersonalInfo(
                 $selected_portfolio,$user_profession,$user_name,$user_email,$user_dob,
-                $user_age,$user_gender,$user_img,$user_social,$user_address,$user_cell
+                $user_age,$user_gender,$user_img,$user_social_fb,$user_social_tw,$user_social_in,$user_address,$user_cell
             );
             echo json_encode(['message' => $response]);
+            break;
+
+        case 'addAboutInfo':
+            $skills = $_POST['user_skills'];
+            $skills_rating = $_POST['user_rate_exp'];
+            $tools = $_POST['user_tools'];
+            $tools_rating = $_POST['user_tool_exp'];
+            $user_metric_subject = $_POST['user_metric_subject'];
+            $user_metric_marks = $_POST['user_metric_marks'];
+            $user_metric_from = $_POST['user_metric_from'];
+            $user_metric_to = $_POST['user_metric_to'];
+            $user_metric_institute = $_POST['user_metric_institute'];
+            $user_inter_subject = $_POST['user_inter_subject'];
+            $user_inter_marks = $_POST['user_inter_marks'];
+            $user_inter_from = $_POST['user_inter_from'];
+            $user_inter_to = $_POST['user_inter_to'];
+            $user_inter_institute = $_POST['user_inter_institute'];
+            $user_grad_subject = $_POST['user_grad_subject'];
+            $user_grad_marks = $_POST['user_grad_marks'];
+            $user_grad_from = $_POST['user_grad_from'];
+            $user_grad_to = $_POST['user_grad_from'];
+            $user_grad_institute = $_POST['user_grad_institute'];
+            $user_uni_subject = $_POST['user_uni_subject'];
+            $user_uni_marks = $_POST['user_uni_marks'];
+            $user_uni_from = $_POST['user_uni_from'];
+            $user_uni_to = $_POST['user_uni_to'];
+            $user_uni_institute = $_POST['user_uni_institute'];
+            $user_professional_desig = $_POST['user_professional_desig'];
+            $user_professional_from = $_POST['user_professional_from'];
+            $user_professional_to = $_POST['user_professional_to'];
+            $user_professional_institute = $_POST['user_professional_institute'];
+            $user_professional_exp = $_POST['user_professional_exp'];
+            $user_self_para = $_POST['user_self_para'];
+
+            $result = false;
+
+            $result = $db->addSkills($skills,$skills_rating);
+            if($result){
+                $result = $db->addTools($tools,$tools_rating);
+                if($result){
+                    $result = $db->addEducation(
+                        $user_metric_subject,$user_metric_marks,$user_metric_from,$user_metric_to,$user_metric_institute,
+                        $user_inter_subject,$user_inter_marks,$user_inter_from,$user_inter_to,$user_inter_institute,
+                        $user_grad_subject,$user_grad_marks,$user_grad_from,$user_grad_to,$user_grad_institute,
+                        $user_uni_subject,$user_uni_marks,$user_uni_from,$user_uni_to,$user_uni_institute
+                    );
+                    if($result){
+                        $result = $db->addProfession($user_professional_desig,$user_professional_from,
+                            $user_professional_to,$user_professional_institute,$user_professional_exp);
+                        if($result){
+                            $result = $db->updatePersonalInfo($user_self_para);
+                        }
+                    }
+                }
+            }
+
+            if($result){
+                echo json_encode(['message' => 'success']);
+            }else{
+                echo json_encode(['message' => 'error']);
+            }
+
+            break;
+
+        case 'getPersonalInfo':
+            $response = $db->getPersonalInfo();
+            if($response == 'error'){
+                echo json_encode(['message' => 'error']);
+            }else{
+                echo json_encode(array("message" => 'success', "data" => $response));
+            }
+            break;
+
+        case 'getAboutInfo':
+            $skills = $db->getSkills();
+            $tools = $db->getTools();
+            $edu = $db->getEducation();
+            $prof = $db->getProfession();
+            $para = $db->getAboutPara();
+
+            echo json_encode(array("message" => 'success', "skills" => $skills, "tools" => $tools,
+                            "edu" => $edu, "prof" => $prof, "para" => $para));
+            break;
+
+        case 'getMyPortfolios':
+            $response = $db->getMyPortFolio();
+            $file = '';
+            if($response['user_portfolio'] == 'iPortfolio'){
+                ob_start();
+                include '../components/plans/iportfolio.php';
+                $file = ob_get_clean();
+            }elseif ($response['user_portfolio'] == 'DevFolio'){
+                ob_start();
+                include '../components/plans/devfolio.php';
+                $file = ob_get_clean();
+            }elseif ($response['user_portfolio'] == 'KFolio'){
+                ob_start();
+                include '../components/plans/kfolio.php';
+                $file = ob_get_clean();
+            }elseif ($response['user_portfolio'] == 'LauraFolio'){
+                ob_start();
+                include '../components/plans/laurafolio.php';
+                $file = ob_get_clean();
+            }elseif ($response['user_portfolio'] == 'MyResume'){
+                ob_start();
+                include '../components/plans/myresume.php';
+                $file = ob_get_clean();
+            }
+            echo json_encode(['message' => 'success', 'portfolio' => $file]);
             break;
         default:
             // Handle unknown actions
@@ -131,3 +219,8 @@ if (isset($_POST['action']) || isset($_GET['action'])) {
     header('Content-Type: application/json');
     echo json_encode(['message' => 'No action specified']);
 }
+
+
+//echo '<pre>';
+//var_dump($skills);
+//echo '</pre>';

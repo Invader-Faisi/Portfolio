@@ -1,70 +1,38 @@
-<div class="col-lg-12">
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title">My Portfolios</h5>
+<div class="row" id="my_portfolio">
 
-            <!-- Default Table -->
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Name</th>
-                        <th scope="col"></th>
-                        <th scope="col">Update</th>
-                        <th scope="col">Delete</th>
-                        <th scope="col">View</th>
-                        <th scope="col">Download</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th scope="row">1</th>
-                        <td>IPortfolio</td>
-                        <td></td>
-                        <td><i class="bi bi-pencil-square text-warning"></i></td>
-                        <td><i class="bi bi-trash-fill text-danger"></i></td>
-                        <td><i class="bi bi-eye-fill text-info"></i></td>
-                        <td><i class="bi bi-arrow-down-circle  text-success"></i></td>
-                    </tr>
-                    <tr>
-                        <th scope="row">2</th>
-                        <td>Dev Portfolio</td>
-                        <td></td>
-                        <td><i class="bi bi-pencil-square text-warning"></i></td>
-                        <td><i class="bi bi-trash-fill text-danger"></i></td>
-                        <td><i class="bi bi-eye-fill text-info"></i></td>
-                        <td><i class="bi bi-arrow-down-circle  text-success"></i></td>
-                    </tr>
-                    <tr>
-                        <th scope="row">3</th>
-                        <td>Laura Portfolio</td>
-                        <td></td>
-                        <td><i class="bi bi-pencil-square text-warning"></i></td>
-                        <td><i class="bi bi-trash-fill text-danger"></i></td>
-                        <td><i class="bi bi-eye-fill text-info"></i></td>
-                        <td><i class="bi bi-arrow-down-circle  text-success"></i></td>
-                    </tr>
-                    <tr>
-                        <th scope="row">4</th>
-                        <td>K-Portfolio</td>
-                        <td></td>
-                        <td><i class="bi bi-pencil-square text-warning"></i></td>
-                        <td><i class="bi bi-trash-fill text-danger"></i></td>
-                        <td><i class="bi bi-eye-fill text-info"></i></td>
-                        <td><i class="bi bi-arrow-down-circle  text-success"></i></td>
-                    </tr>
-                    <tr>
-                        <th scope="row">5</th>
-                        <td>My Resume</td>
-                        <td></td>
-                        <td><i class="bi bi-pencil-square text-warning"></i></td>
-                        <td><i class="bi bi-trash-fill text-danger"></i></td>
-                        <td><i class="bi bi-eye-fill text-info"></i></td>
-                        <td><i class="bi bi-arrow-down-circle  text-success"></i></td>
-                    </tr>
-                </tbody>
-            </table>
-            <!-- End Default Table Example -->
-        </div>
-    </div>
+
 </div>
+
+<script>
+    $(document).ready(function (){
+        $.ajax({
+            type: "POST",
+            url: "backend/dbHandler.php",
+            dataType: 'json',
+            data: {action: 'getMyPortfolios'},
+            success: function(response) {
+                if(response.message === 'success'){
+                    $('#my_portfolio').html(response.portfolio);
+
+                    let buttons = `
+<div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="d-flex align-items-center justify-content-start mt-3 gap-2 buttons_div">
+                    <button type="button" class="btn btn-secondary select-portfolio" data-id="iPortfolio" onmouseover="this.style.background = 'green'; this.style.color = 'white';" onmouseout="this.style.background = 'white'; this.style.color = 'gray';"><i class="bi bi-eye-fill"></i>&nbsp; <span>View</span></button>
+                    <button type="button" class="btn btn-secondary select-portfolio" data-id="iPortfolio" onmouseover="this.style.background = 'green'; this.style.color = 'white';" onmouseout="this.style.background = 'white'; this.style.color = 'gray';"><i class="bi bi-arrow-bar-down"></i>&nbsp; <span>Download</span></button>
+                    </div>
+</div>
+                    `;
+
+                    $('#my_portfolio').append(buttons);
+                } else {
+                    toastr.error('You don\'t have any portfolio in the database!');
+                }
+            },
+            error: function(xhr, status, error) {
+                toastr.error('Database error: ' + error);
+            }
+        });
+    });
+
+
+</script>

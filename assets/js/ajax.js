@@ -16,7 +16,10 @@ $(document).ready(function() {
             },
             dataType: 'json',
             success: function(response) {
-                alert(response.message);  
+                if(response.message === 'success'){
+                    toastr.success('Registration Successful , Please wait for approval');
+                    $('#register_form')[0].reset();
+                }
             },
             error: function(xhr, status, error) {
                 alert('An error occurred: ' + error);
