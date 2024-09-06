@@ -139,48 +139,8 @@ if (session_status() === PHP_SESSION_NONE) {
 
 <script>
     $(document).ready(function() {
-        // Editing information if already added
-        $.ajax({
-            type: "POST",
-            url: "backend/dbHandler.php",
-            dataType: 'json',
-            data: {action:'getPersonalInfo'},
-            success: function(response) {
-                if (response.message == 'success') {
-                    $('#selected_portfolio').val(response.data.user_portfolio);
-                    $('#user_profession').val(response.data.user_profession);
-                    $('#user_name').val(response.data.user_name);
-                    $('#user_email').val(response.data.user_email);
-                    $('#user_dob').val(response.data.user_dob);
-                    $('#user_age').val(response.data.user_age);
-                    $('input[name="user_gender"][value="' + response.data.user_gender + '"]').prop('checked', true);
-
-                    if(response.data.user_img) {
-                        $('#img_preview').attr('src', response.data.user_img).css('display', 'block');
-                    }
-                    $('#user_social_fb').val(response.data.social_fb);
-                    $('#user_social_tw').val(response.data.social_tw);
-                    $('#user_social_in').val(response.data.social_in);
-                    $('#user_address').val(response.data.user_address);
-                    $('#user_cell').val(response.data.user_cell);
-
-                    if (response.data.user_name) {
-                        $('#edit_info').removeClass('d-none');
-                        $('#add_info').addClass('d-none');
-                    } else {
-                        $('#edit_info').addClass('d-none');
-                        $('#add_info').removeClass('d-none');
-                    }
-
-                } else {
-                    toastr.error('No Old Data found');
-                }
-            },
-            error: function(xhr, status, error) {
-                toastr.error('Database error : ' + error);
-            }
-        });
-
+        // loading the page
+        pageLoad();
 
         // Displaying the image
         $('#user_img').change(function() {
@@ -200,14 +160,24 @@ if (session_status() === PHP_SESSION_NONE) {
             }
         });
 
-
-
-
         // Adding information for first time
-
         $('#personal_info_form').on('submit', function(e) {
             e.preventDefault();
             let formData = new FormData(this);
+            let action = 'addPersonalInfo';
+            personelInfo(formData, action);
+        });
+
+        // Editing information
+        $('#edit_info').click(function (){
+            let formData = new FormData($('#personal_info_form')[0]);
+            let action = 'editPersonalInfo';
+            personelInfo(formData, action);
+        });
+
+        // Adding / Updating Info
+        function personelInfo(formData, action)
+        {
             let isValid = true;
 
             //Validate the fields
@@ -246,11 +216,15 @@ if (session_status() === PHP_SESSION_NONE) {
                 $('#user_dob_error').append('<p class="alert alert-danger">Please enter your Age.</p>');
             }
 
-            let user_img = $('#user_img').val().trim();
-            if (user_img === '') {
-                isValid = false;
-                $('#user_img_error').append('<p class="alert alert-danger">Please add your Image.</p>');
+            if(action == 'addPersonalInfo')
+            {
+                let user_img = $('#user_img').val().trim();
+                if (user_img === '') {
+                    isValid = false;
+                    $('#user_img_error').append('<p class="alert alert-danger">Please add your Image.</p>');
+                }
             }
+
 
             let user_social_fb = $('#user_social_fb').val().trim();
             if (user_social_fb === '') {
@@ -273,7 +247,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
             // If form is valid, get the data
             if (isValid) {
-                formData.append('action', 'addPersonalInfo');
+                formData.append('action', action);
                 $.ajax({
                     type: "POST",
                     url: "backend/dbHandler.php",
@@ -283,8 +257,13 @@ if (session_status() === PHP_SESSION_NONE) {
                     data: formData,
                     success: function(response) {
                         if(response.message == 'success'){
-                            toastr.success('Portfolio added successfully');
-                            $('#personal_info_form')[0].reset();
+                            if(action == 'addPersonalInfo'){
+                                toastr.success('Portfolio added successfully');
+                                $('#personal_info_form')[0].reset();
+                            }else{
+                                toastr.success('Portfolio Updated successfully');
+                                pageLoad();
+                            }
                         }else{
                             toastr.error('Image Size is too large');
                         }
@@ -294,7 +273,52 @@ if (session_status() === PHP_SESSION_NONE) {
                     }
                 });
             }
-        });
+        }
+
+        // function to load the page
+        function pageLoad()
+        {
+            $.ajax({
+                type: "POST",
+                url: "backend/dbHandler.php",
+                dataType: 'json',
+                data: {action:'getPersonalInfo'},
+                success: function(response) {
+                    if (response.message == 'success') {
+                        $('#selected_portfolio').val(response.data.user_portfolio);
+                        $('#user_profession').val(response.data.user_profession);
+                        $('#user_name').val(response.data.user_name);
+                        $('#user_email').val(response.data.user_email);
+                        $('#user_dob').val(response.data.user_dob);
+                        $('#user_age').val(response.data.user_age);
+                        $('input[name="user_gender"][value="' + response.data.user_gender + '"]').prop('checked', true);
+
+                        if(response.data.user_img) {
+                            $('#img_preview').attr('src', response.data.user_img).css('display', 'block');
+                        }
+                        $('#user_social_fb').val(response.data.social_fb);
+                        $('#user_social_tw').val(response.data.social_tw);
+                        $('#user_social_in').val(response.data.social_in);
+                        $('#user_address').val(response.data.user_address);
+                        $('#user_cell').val(response.data.user_cell);
+
+                        if (response.data.user_name) {
+                            $('#edit_info').removeClass('d-none');
+                            $('#add_info').addClass('d-none');
+                        } else {
+                            $('#edit_info').addClass('d-none');
+                            $('#add_info').removeClass('d-none');
+                        }
+
+                    } else {
+                        toastr.error('No Old Data found');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    toastr.error('Database error : ' + error);
+                }
+            });
+        }
     });
 
 </script>

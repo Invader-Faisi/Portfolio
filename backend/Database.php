@@ -165,108 +165,6 @@ class Database
         }
     }
 
-    public function addSkills($skill,$skill_rating){
-        $user_id = $this->getSession();
-
-        $skills = explode(',',$skill);
-        $rating = explode(',',$skill_rating);
-        try {
-            $query = "INSERT INTO skills (user_id, skill, skill_rating) VALUES (?, ?, ?)";
-            $stmt = $this->conn->prepare($query);
-
-            for ($i = 0; $i < count($skills); $i++) {
-                $currentSkill = trim($skills[$i]);
-                $currentRating = trim($rating[$i]);
-                $result = $stmt->execute([$user_id,$currentSkill,$currentRating]);
-            }
-
-            if ($result) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (PDOException $e) {
-            return ['error' => $e->getMessage()];
-        }
-    }
-
-    public function addTools($tool,$tools_rating)
-    {
-        $user_id = $this->getSession();
-
-        $tools = explode(',',$tool);
-        $rating = explode(',',$tools_rating);
-
-        $result = false;
-
-        try {
-            $query = "INSERT INTO tools (user_id, tool, tool_rating) VALUES (?, ?, ?)";
-            $stmt = $this->conn->prepare($query);
-
-            for ($i = 0; $i < count($tools); $i++) {
-                $currentTool = trim($tools[$i]);
-                $currentRating = trim($rating[$i]);
-                $result = $stmt->execute([$user_id,$currentTool,$currentRating]);
-            }
-            
-            if ($result) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (PDOException $e) {
-            return ['error' => $e->getMessage()];
-        }
-    }
-
-    public function addEducation(
-        $user_metric_subject,$user_metric_marks,$user_metric_from,$user_metric_to,$user_metric_institute,
-        $user_inter_subject,$user_inter_marks,$user_inter_from,$user_inter_to,$user_inter_institute,
-        $user_grad_subject,$user_grad_marks,$user_grad_from,$user_grad_to,$user_grad_institute,
-        $user_uni_subject,$user_uni_marks,$user_uni_from,$user_uni_to,$user_uni_institute
-    )
-    {
-        $user_id = $this->getSession();
-        $result = $this->insertEducation($user_id,"metric",$user_metric_subject,$user_metric_marks,$user_metric_from,$user_metric_to,$user_metric_institute);
-        if($result){
-            $result = $this->insertEducation($user_id,"Intermediate",$user_inter_subject,$user_inter_marks,$user_inter_from,$user_inter_to,$user_inter_institute);
-            if($result){
-                $result = $this->insertEducation($user_id,"Graduation",$user_grad_subject,$user_grad_marks,$user_grad_from,$user_grad_to,$user_grad_institute);
-                if($result){
-                    $result = $this->insertEducation($user_id,"University",$user_uni_subject,$user_uni_marks,$user_uni_from,$user_uni_to,$user_uni_institute);
-                    if ($result) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-            }
-        }
-        return $result;
-    }
-
-    public function addProfession($user_professional_desig,$user_professional_from,
-                $user_professional_to,$user_professional_institute,$user_professional_exp)
-    {
-        $user_id = $this->getSession();
-
-        try {
-            $query = "INSERT INTO profession (user_id,designation,profession_from,profession_to,
-                        profession_company,profession_about) VALUES (?,?,?,?,?,?)";
-            $stmt = $this->conn->prepare($query);
-            $result = $stmt->execute([$user_id,$user_professional_desig,$user_professional_from,
-                $user_professional_to,$user_professional_institute,$user_professional_exp]);
-
-            if ($result) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (PDOException $e) {
-            return ['error' => $e->getMessage()];
-        }
-    }
-
     public function updatePersonalInfo($user_self_para)
     {
         $user_id = $this->getSession();
@@ -274,24 +172,6 @@ class Database
             $query = "UPDATE portfolios SET user_about = ? WHERE user_id = ?";
             $stmt = $this->conn->prepare($query);
             $result = $stmt->execute([$user_self_para,$user_id]);
-
-            if ($result) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (PDOException $e) {
-            return ['error' => $e->getMessage()];
-        }
-    }
-
-    private function insertEducation($user,$level,$sub,$marks,$from,$to,$school){
-
-        try {
-            $query = "INSERT INTO education (user_id, edu, edu_subject,edu_marks,edu_from,edu_to,edu_institue) 
-                        VALUES (?,?,?,?,?,?,?)";
-            $stmt = $this->conn->prepare($query);
-            $result = $stmt->execute([$user,$level,$sub,$marks,$from,$to,$school]);
 
             if ($result) {
                 return true;
@@ -419,7 +299,7 @@ class Database
     {
         $user_id = $this->getSession();
         try {
-            $query = "SELECT user_portfolio FROM portfolios WHERE user_id = ?";
+            $query = "SELECT user_id,user_portfolio FROM portfolios WHERE user_id = ?";
             $stmt = $this->conn->prepare($query);
             $stmt->execute([$user_id]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -428,6 +308,255 @@ class Database
         }
     }
 
+    public function editPersonalInfo($selected_portfolio, $user_profession, $user_name, $user_email, $user_dob,
+                                     $user_age, $user_gender, $user_img, $user_social_fb, $user_social_tw, $user_social_in, $user_address, $user_cell) {
+
+        $user_id = $this->getSession();
+
+        // Base update query without user_img
+        $query = "UPDATE portfolios 
+              SET user_portfolio = :user_portfolio,
+                  user_profession = :user_profession,
+                  user_name = :user_name,
+                  user_email = :user_email,
+                  user_dob = :user_dob,
+                  user_age = :user_age,
+                  user_gender = :user_gender,
+                  user_address = :user_address,
+                  user_cell = :user_cell
+              WHERE user_id = :user_id";
+
+        // If $user_img is not empty, add user_img to the query
+        if (!empty($user_img)) {
+            $query = "UPDATE portfolios 
+                  SET user_portfolio = :user_portfolio,
+                      user_profession = :user_profession,
+                      user_name = :user_name,
+                      user_email = :user_email,
+                      user_dob = :user_dob,
+                      user_age = :user_age,
+                      user_gender = :user_gender,
+                      user_img = :user_img,
+                      user_address = :user_address,
+                      user_cell = :user_cell
+                  WHERE user_id = :user_id";
+        }
+
+        $stmt = $this->conn->prepare($query);
+
+        // Bind parameters to the prepared statement
+        $stmt->bindParam(':user_id', $user_id);
+        $stmt->bindParam(':user_portfolio', $selected_portfolio);
+        $stmt->bindParam(':user_profession', $user_profession);
+        $stmt->bindParam(':user_name', $user_name);
+        $stmt->bindParam(':user_email', $user_email);
+        $stmt->bindParam(':user_dob', $user_dob);
+        $stmt->bindParam(':user_age', $user_age);
+        $stmt->bindParam(':user_gender', $user_gender);
+
+        if (!empty($user_img)) {
+            $stmt->bindParam(':user_img', $user_img, PDO::PARAM_LOB);
+        }
+
+        $stmt->bindParam(':user_address', $user_address);
+        $stmt->bindParam(':user_cell', $user_cell);
+
+        try {
+            $result = $stmt->execute();
+
+            if ($result) {
+                // Update social media information
+                $query = "UPDATE social 
+                          SET social_fb = ?, 
+                              social_tw = ?, 
+                              social_in = ? 
+                          WHERE user_id = ?";
+                $stmt = $this->conn->prepare($query);
+
+                try {
+                    $result = $stmt->execute([$user_social_fb,$user_social_tw,$user_social_in,$user_id]);
+                }catch (PDOException $e)
+                {
+                    error_log($e->getMessage());
+                    return ['error' => $e->getMessage()];
+                }
+                return ($result) ? "success" : "error";
+            } else {
+                return "error";
+            }
+        } catch (PDOException $e) {
+            error_log($e->getMessage());
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+
+    public function Skills($skill, $skill_rating, $todo)
+    {
+        $user_id = $this->getSession();
+
+        $skills = explode(',',$skill);
+        $rating = explode(',',$skill_rating);
+
+        if($todo == 'update')
+        {
+            try {
+                $query = "DELETE FROM skills WHERE user_id = ?";
+                $stmt = $this->conn->prepare($query);
+                $stmt->execute([$user_id]);
+            }catch (PDOException $e) {
+                print_r($e->getMessage());
+            }
+
+        }
+        try {
+            $query = "INSERT INTO skills (user_id, skill, skill_rating) VALUES (?, ?, ?)";
+            $stmt = $this->conn->prepare($query);
+            for ($i = 0; $i < count($skills); $i++) {
+                $currentSkill = trim($skills[$i]);
+                $currentRating = trim($rating[$i]);
+                $result = $stmt->execute([$user_id,$currentSkill,$currentRating]);
+            }
+            if ($result) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (PDOException $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    public function Tools($tool,$tools_rating,$todo)
+    {
+        $user_id = $this->getSession();
+        $tools = explode(',',$tool);
+        $rating = explode(',',$tools_rating);
+        if($todo == 'update')
+        {
+            try {
+                $query = "DELETE FROM tools WHERE user_id = ?";
+                $stmt = $this->conn->prepare($query);
+                $stmt->execute([$user_id]);
+            }catch (PDOException $e) {
+                print_r($e->getMessage());
+            }
+
+        }
+        try {
+            $query = "INSERT INTO tools (user_id, tool, tool_rating) VALUES (?, ?, ?)";
+            $stmt = $this->conn->prepare($query);
+            for ($i = 0; $i < count($tools); $i++) {
+                $currentTool = trim($tools[$i]);
+                $currentRating = trim($rating[$i]);
+                $result = $stmt->execute([$user_id,$currentTool,$currentRating]);
+            }
+            if ($result) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (PDOException $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    public function Education(
+        $user_metric_subject, $user_metric_marks, $user_metric_from, $user_metric_to, $user_metric_institute,
+        $user_inter_subject, $user_inter_marks, $user_inter_from, $user_inter_to, $user_inter_institute,
+        $user_grad_subject, $user_grad_marks, $user_grad_from, $user_grad_to, $user_grad_institute,
+        $user_uni_subject, $user_uni_marks, $user_uni_from, $user_uni_to, $user_uni_institute, $todo
+    ) {
+        $user_id = $this->getSession();
+
+        $result = $this->EducationInsertion($user_id,"Metric",$user_metric_subject,$user_metric_marks,$user_metric_from,$user_metric_to,$user_metric_institute,$todo);
+        if($result){
+            $result = $this->EducationInsertion($user_id,"Intermediate",$user_inter_subject,$user_inter_marks,$user_inter_from,$user_inter_to,$user_inter_institute,$todo);
+            if($result){
+                $result = $this->EducationInsertion($user_id,"Graduation",$user_grad_subject,$user_grad_marks,$user_grad_from,$user_grad_to,$user_grad_institute,$todo);
+                if($result){
+                    $result = $this->EducationInsertion($user_id,"University",$user_uni_subject,$user_uni_marks,$user_uni_from,$user_uni_to,$user_uni_institute,$todo);
+                    if ($result) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return $result;
+    }
+
+
+    private function EducationInsertion($user_id, $level, $sub, $marks, $from, $to, $school, $todo) {
+        try {
+            if ($todo == 'add') {
+                $query = "INSERT INTO education (user_id, edu, edu_subject, edu_marks, edu_from, edu_to, edu_institue)
+                      VALUES (?, ?, ?, ?, ?, ?, ?)";
+                $stmt = $this->conn->prepare($query);
+                $result = $stmt->execute([$user_id, $level, $sub, $marks, $from, $to, $school]);
+                if($result)
+                {
+                    return true;
+                }else{
+                    return false;
+                }
+            }
+            if ($todo == 'update') {
+                $query = "UPDATE education
+                      SET edu_subject = ?, edu_marks = ?, edu_from = ?, edu_to = ?, edu_institue = ?
+                      WHERE user_id = ? AND edu = ?";
+                $stmt = $this->conn->prepare($query);
+                $result = $stmt->execute([$sub, $marks, $from, $to, $school, $user_id, $level]);
+                if($result)
+                {
+                    return true;
+                }else{
+                    return false;
+                }
+            }
+        } catch (PDOException $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+
+    public function Profession($user_professional_desig,$user_professional_from,$user_professional_to,
+                               $user_professional_institute,$user_professional_exp,$todo)
+    {
+        $user_id = $this->getSession();
+        try {
+            $result = "";
+            if($todo == 'add')
+            {
+                $query = "INSERT INTO profession (user_id,designation,profession_from,profession_to,
+                        profession_company,profession_about) VALUES (?,?,?,?,?,?)";
+                $stmt = $this->conn->prepare($query);
+                $result = $stmt->execute([$user_id,$user_professional_desig,$user_professional_from,
+                    $user_professional_to,$user_professional_institute,$user_professional_exp]);
+            }
+
+
+            if($todo == 'update')
+            {
+                $query = "UPDATE profession SET designation = ?, profession_from = ?, profession_to = ?, profession_company = ?, 
+                  profession_about = ? WHERE user_id = ? ";
+                $stmt = $this->conn->prepare($query);
+                $result = $stmt->execute([$user_professional_desig,$user_professional_from,
+                    $user_professional_to,$user_professional_institute,$user_professional_exp,$user_id]);
+            }
+
+
+            if ($result) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (PDOException $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
     private function getSession()
     {
         if (session_status() === PHP_SESSION_NONE) {

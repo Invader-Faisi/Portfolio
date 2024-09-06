@@ -212,7 +212,7 @@ if (session_status() === PHP_SESSION_NONE) {
                 <div class="row mb-3">
                     <label for="add_info_btn" class="col-sm-2 col-form-label"></label>
                     <div class="col-sm-10 d-flex align-content-center justify-content-center">
-                        <button type="submit" class="btn btn-primary d-none" id="edit_info_btn">Update Info</button>
+                        <button type="button" class="btn btn-primary d-none" id="edit_info_btn">Update Info</button>
                         <button type="submit" class="btn btn-success" id="add_info_btn">Add Info</button>
                     </div>
                 </div>
@@ -226,88 +226,17 @@ if (session_status() === PHP_SESSION_NONE) {
 
 <script>
     $(document).ready(function() {
-        // Editing information if already added
-        $.ajax({
-            type: "POST",
-            url: "backend/dbHandler.php",
-            dataType: 'json',
-            data: { action: 'getAboutInfo' },
-            success: function(response) {
-                if (response.message == 'success') {
-                    // Populate Skills and Tools
-                    //$('#user_skills').val(response.skills.skill);
-                    populatePills('skill_pills', response.skills.skill);
-                    //$('#user_rate_exp').val(response.skills.skill_ratings);
-                    populatePills('skill_rate_pills', response.skills.skill_ratings);
-                   // $('#user_tools').val(response.tools.tool);
-                    populatePills('tool_pills', response.tools.tool);
-                    //$('#user_tool_exp').val(response.tools.tool_ratings);
-                    populatePills('tool_rate_pills', response.tools.tool_ratings);
+        // loading the page
+        loadPage();
 
-                    // Populate Education
-                    $('#user_metric_subject').val(response.edu.edu1.edu_subject);
-                    $('#user_metric_marks').val(response.edu.edu1.edu_marks);
-                    $('#user_metric_from').val(response.edu.edu1.edu_from);
-                    $('#user_metric_to').val(response.edu.edu1.edu_to);
-                    $('#user_metric_institute').val(response.edu.edu1.edu_institue);
-                    $('#user_inter_subject').val(response.edu.edu2.edu_subject);
-                    $('#user_inter_marks').val(response.edu.edu2.edu_marks);
-                    $('#user_inter_from').val(response.edu.edu2.edu_from);
-                    $('#user_inter_to').val(response.edu.edu2.edu_to);
-                    $('#user_inter_institute').val(response.edu.edu2.edu_institue);
-                    $('#user_grad_subject').val(response.edu.edu3.edu_subject);
-                    $('#user_grad_marks').val(response.edu.edu3.edu_marks);
-                    $('#user_grad_from').val(response.edu.edu3.edu_from);
-                    $('#user_grad_to').val(response.edu.edu3.edu_to);
-                    $('#user_grad_institute').val(response.edu.edu3.edu_institue);
-                    $('#user_uni_subject').val(response.edu.edu4.edu_subject);
-                    $('#user_uni_marks').val(response.edu.edu4.edu_marks);
-                    $('#user_uni_from').val(response.edu.edu4.edu_from);
-                    $('#user_uni_to').val(response.edu.edu4.edu_to);
-                    $('#user_uni_institute').val(response.edu.edu4.edu_institue);
-
-                    // Populate Professional Experience
-                    $('#user_professional_desig').val(response.prof.designation);
-                    $('#user_professional_from').val(response.prof.profession_from);
-                    $('#user_professional_to').val(response.prof.profession_to);
-                    $('#user_professional_institute').val(response.prof.profession_company);
-                    $('#user_professional_exp').val(response.prof.profession_about);
-
-                    // Populate Self Info
-                    $('#user_self_para').val(response.para.user_about);
-
-                    // Show Edit button and hide Add button if data exists
-                    if (response.skills.skill) {
-                        $('#edit_info_btn').removeClass('d-none');
-                        $('#add_info_btn').addClass('d-none');
-                    } else {
-                        $('#edit_info_btn').addClass('d-none');
-                        $('#add_info_btn').removeClass('d-none');
-                    }
-                } else {
-                    toastr.error('No Old Data found');
-                }
-            },
-            error: function(xhr, status, error) {
-                toastr.error('Database error: ' + error);
-            }
-        });
-
-        function populatePills(containerId, data) {
-            let container = $('#' + containerId);
-            container.empty();
-            let items = data.split(',');
-            items.forEach(item => {
-                container.append(`<span class="badge badge-pill">${item.trim()}<span class="ml-1">x</span></span>`);
-            });
-        }
-
+        // variables to count the skills and tools
+        let skill_count = 0; let skill_rate_count = 0; let tool_count = 0; let tool_rate_count = 0;
 
         // making pills of skills and tools
         $('.pills-input').on('input', function(e) {
             e.preventDefault();
             let input = $(this).val();
-            let pillsContainer = $(this).siblings('.pills-container'); // Correct targeting of the sibling container
+            let pillsContainer = $(this).siblings('.pills-container');
 
             if (input.includes(',')) {
                 let skills = input.split(',');
@@ -322,15 +251,12 @@ if (session_status() === PHP_SESSION_NONE) {
                 $(this).val(skills[skills.length - 1].trim());
             }
         });
-        // Handle click to remove pill
+        // click to remove pill
         $(document).on('click', '.badge span', function() {
             $(this).parent().remove();
         });
 
-
-        var skill_count; var skill_rate_count; var tool_count; var tool_rate_count;
-
-
+        // helpers
         $('#user_skills').blur(function (){
             let skills = $('#skill_pills').text();
             if(skills !== ''){
@@ -371,11 +297,61 @@ if (session_status() === PHP_SESSION_NONE) {
             tool_rate_count = tool_rate;
         })
 
+        //adding about info
         $('#about_form').on('submit', function (e) {
             e.preventDefault();
-
             let formData = new FormData(this);
+            let action = 'addAboutInfo';
+            aboutInfo(formData,action);
+
+        });
+
+        // updating about information
+        $('#edit_info_btn').click(function (){
+
+                let skills = $('#skill_pills').text();
+                if(skills !== ''){
+                    skills = skills.split('x');
+                    skills = skills.filter(value => value.trim() !== '');
+                    $('#user_skills').val(skills);
+                }
+                skill_count = skills;
+
+                let skill_rate = $('#skill_rate_pills').text();
+                if(skill_rate !== ''){
+                    skill_rate = skill_rate.split('x');
+                    skill_rate = skill_rate.filter(value => value.trim() !== '');
+                    $('#user_rate_exp').val(skill_rate);
+                }
+                skill_rate_count = skill_rate;
+
+                let tools = $('#tool_pills').text();
+                if(tools){
+                    tools = tools.split('x');
+                    tools = tools.filter(value => value.trim() !== '');
+                    $('#user_tools').val(tools);
+                }
+                tool_count = tools;
+
+                let tool_rate = $('#tool_rate_pills').text();
+                if(tool_rate !== ''){
+                    tool_rate = tool_rate.split('x');
+                    tool_rate = tool_rate.filter(value => value.trim() !== '');
+                    $('#user_tool_exp').val(tool_rate);
+                }
+                tool_rate_count = tool_rate;
+
+            let formData = new FormData($('#about_form')[0]);
+            let action = 'editAboutInfo';
+            aboutInfo(formData,action);
+        });
+
+
+        // function to handle the adding / updating about form
+        function aboutInfo(formData, action)
+        {
             let isValid = true;
+
 
             if(skill_count.length !== skill_rate_count.length){
                 isValid = false;
@@ -386,7 +362,6 @@ if (session_status() === PHP_SESSION_NONE) {
                 isValid = false;
                 toastr.error('All Skills must correspond to Ratings');
             }
-
 
             //Validate the fields
 
@@ -416,9 +391,9 @@ if (session_status() === PHP_SESSION_NONE) {
             }
 
 
-            // If form is valid, get the data
+            //If form is valid, get the data
             if (isValid) {
-                formData.append('action', 'addAboutInfo');
+                formData.append('action', action);
                 $.ajax({
                     type: "POST",
                     url: "backend/dbHandler.php",
@@ -428,8 +403,15 @@ if (session_status() === PHP_SESSION_NONE) {
                     processData: false,
                     success: function(response) {
                         if(response.message == 'success'){
-                            toastr.success('Information added successfully');
-                            $('#about_form')[0].reset();
+                            if(action == 'addAboutInfo'){
+                                toastr.success('Information Added successfully');
+                                $('#about_form')[0].reset();
+                            }
+                            if(action == 'editAboutInfo'){
+                                toastr.success('Information Updated successfully');
+                                loadPage();
+                            }
+
                         }else{
                             toastr.error('Something went Wrong database!!!');
                         }
@@ -440,8 +422,80 @@ if (session_status() === PHP_SESSION_NONE) {
                 });
             }
 
+        }
+        // function to load the page
+        function loadPage() {
+            $.ajax({
+                type: "POST",
+                url: "backend/dbHandler.php",
+                dataType: 'json',
+                data: { action: 'getAboutInfo' },
+                success: function(response) {
+                    if (response.message == 'success') {
+                        // Populate Skills and Tools
+                        populatePills('skill_pills', response.skills.skill);
+                        populatePills('skill_rate_pills', response.skills.skill_ratings);
+                        populatePills('tool_pills', response.tools.tool);
+                        populatePills('tool_rate_pills', response.tools.tool_ratings);
 
-        });
+                        // Populate Education
+                        $('#user_metric_subject').val(response.edu.edu1.edu_subject);
+                        $('#user_metric_marks').val(response.edu.edu1.edu_marks);
+                        $('#user_metric_from').val(response.edu.edu1.edu_from);
+                        $('#user_metric_to').val(response.edu.edu1.edu_to);
+                        $('#user_metric_institute').val(response.edu.edu1.edu_institue);
+                        $('#user_inter_subject').val(response.edu.edu2.edu_subject);
+                        $('#user_inter_marks').val(response.edu.edu2.edu_marks);
+                        $('#user_inter_from').val(response.edu.edu2.edu_from);
+                        $('#user_inter_to').val(response.edu.edu2.edu_to);
+                        $('#user_inter_institute').val(response.edu.edu2.edu_institue);
+                        $('#user_grad_subject').val(response.edu.edu3.edu_subject);
+                        $('#user_grad_marks').val(response.edu.edu3.edu_marks);
+                        $('#user_grad_from').val(response.edu.edu3.edu_from);
+                        $('#user_grad_to').val(response.edu.edu3.edu_to);
+                        $('#user_grad_institute').val(response.edu.edu3.edu_institue);
+                        $('#user_uni_subject').val(response.edu.edu4.edu_subject);
+                        $('#user_uni_marks').val(response.edu.edu4.edu_marks);
+                        $('#user_uni_from').val(response.edu.edu4.edu_from);
+                        $('#user_uni_to').val(response.edu.edu4.edu_to);
+                        $('#user_uni_institute').val(response.edu.edu4.edu_institue);
 
+                        // Populate Professional Experience
+                        $('#user_professional_desig').val(response.prof.designation);
+                        $('#user_professional_from').val(response.prof.profession_from);
+                        $('#user_professional_to').val(response.prof.profession_to);
+                        $('#user_professional_institute').val(response.prof.profession_company);
+                        $('#user_professional_exp').val(response.prof.profession_about);
+
+                        // Populate Self Info
+                        $('#user_self_para').val(response.para.user_about);
+
+                        // Show Edit button and hide Add button if data exists
+                        if (response.skills.skill) {
+                            $('#edit_info_btn').removeClass('d-none');
+                            $('#add_info_btn').addClass('d-none');
+                        } else {
+                            $('#edit_info_btn').addClass('d-none');
+                            $('#add_info_btn').removeClass('d-none');
+                        }
+                    } else {
+                        toastr.error('No Old Data found');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    toastr.error('Database error: ' + error);
+                }
+            });
+        }
+
+        // Populating the pills
+        function populatePills(containerId, data) {
+            let container = $('#' + containerId);
+            container.empty();
+            let items = data.split(',');
+            items.forEach(item => {
+                container.append(`<span class="badge badge-pill">${item.trim()}<span class="ml-1">x</span></span>`);
+            });
+        }
     });
 </script>
