@@ -277,16 +277,17 @@
   </main>
 
   <footer id="footer" class="footer position-relative light-background">
-
-    <div class="container">
-      <div class="copyright text-center ">
-        <p>© <span>Copyright</span> <strong class="px-1 sitename">DPPG</strong> <span>All Rights Reserved</span></p>
+      <div class="container text-center">
+          <h3 class="sitename">I Portfolio</h3>
+          <div class="container">
+              <div class="copyright">
+                  <span>Copyright</span> <strong class="px-1 sitename">DPPG</strong> <span>All Rights Reserved</span>
+              </div>
+              <div class="credits">
+                  Designed by <a href="https://bootstrapmade.com/">DPPG</a>
+              </div>
+          </div>
       </div>
-      <div class="credits">
-        Designed by <a href="#">DPPG</a>
-      </div>
-    </div>
-
   </footer>
 
   <!-- Scroll Top -->

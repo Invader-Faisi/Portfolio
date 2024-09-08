@@ -59,7 +59,7 @@ $(document).ready(function() {
                 }
                 $('#user_edu').text(education);
                 $('#user_email').text(response.personal.user_email);
-
+                // -----------------------------------------------------------------------------------
                 let skills = response.skills.skill.split(', ');
                 let ratings = response.skills.skill_ratings.split(', ');
 
@@ -95,7 +95,7 @@ $(document).ready(function() {
                 `;
                     $('#user_tools').append(toolHtml);
                 }
-
+                // ------------------------------------------------------------------------------------
                 $('#user_resume_about').text(response.personal.user_about);
                 $('#user_resume_user_name').text(response.personal.user_name);
                 $('#user_resume_address').text(response.personal.user_address);
@@ -103,32 +103,106 @@ $(document).ready(function() {
                 $('#user_resume_email').text(response.personal.user_email);
 
                 $.each(response.edu, function(index, item) {
-                    let newDiv = $('<div class="resume-item"></div>');
+                    let iPDiv = $('<div class="resume-item"></div>');
+                    let devDiv = $('<div class="col-lg-3" data-aos="zoom-in" data-aos-delay="100" ><div class="pricing-item"></div></div>');
                     let edu_html = `                    
                         <h4>${item.edu} with ${item.edu_subject}</h4>
                         <h5>${item.edu_from} - ${item.edu_to}</h5>
                         <h5>${item.edu_marks} Marks</h5>
                         <p><em>${item.edu_institue}</em></p>                    
                     `;
-                    newDiv.append(edu_html);
-                    $('#resume_edu').after(newDiv);
+                    iPDiv.append(edu_html);
+                    $('#resume_edu').after(iPDiv);
+
+                    devDiv.append(edu_html);
+                    $('#dev_edu').after(devDiv);
+
+
 
                 });
 
-                let newDiv = $('<div class="resume-item"></div>');
+                let iPDiv = $('<div class="resume-item"></div>');
                 let profession_html = `                    
                         <h4>${response.prof.designation}</h4>
                         <h5>${response.prof.profession_from} - ${response.prof.profession_to}</h5>
                         <p><em>${response.prof.profession_company}</em></p>  
                         <p><em>${response.prof.profession_about}</em></p>                  
                     `;
-                newDiv.append(profession_html);
-                $('#resume_profession').after(newDiv);
+                iPDiv.append(profession_html);
+                $('#resume_profession').after(iPDiv);
+                $('#dev_profession').after(iPDiv);
 
                 $('#user_contact_address').text(response.personal.user_address);
                 $('#user_contact_cell').text(response.personal.user_cell);
                 $('#user_contact_email').text(response.personal.user_email);
 
+
+
+
+            //     ------------------------------------------   Devfolio   ------------------------------------
+                if ($('#dev_skills').length || $('#laura_skills').length) {
+                    let dev_skills = response.skills.skill.split(', ');
+                    let dev_ratings = response.skills.skill_ratings.split(', ');
+
+                    for (let i = 0; i < dev_skills.length; i++) {
+                        let skill = dev_skills[i];
+                        let rating = dev_ratings[i];
+
+                        let skillHtml = `
+                            <div class="col-lg-4 col-md-6 service-item d-flex" data-aos="fade-up" data-aos-delay="200">
+                                <div class="icon flex-shrink-0"><i class="bi bi-card-checklist"></i></div>
+                                <div>
+                                    <h4 class="title">${skill}</h4>
+                                    <p class="description">Skill Experience (${rating}%)</p>
+                                </div>
+                            </div>
+                        `;
+
+                        let lauraskillHtml = `
+                            <div class="col-lg-6">
+                                <div class="pricing-item d-flex justify-content-between">
+                                    <h3>${skill} experience</h3>
+                                    <h4>${rating}%</h4>
+                                </div>
+                            </div>
+                        `;
+
+                        $('#dev_skills').append(skillHtml);
+                        $('#laura_skills').append(lauraskillHtml);
+
+                    }
+                    let dev_tools = response.tools.tool.split(', ');
+                    let dev_tool_ratings = response.tools.tool_ratings.split(', ');
+
+                    for (let i = 0; i < dev_tools.length; i++) {
+                        let tool = dev_tools[i];
+                        let rating = dev_tool_ratings[i];
+
+                        let toolHtml = `
+                            <div class="col-lg-4 col-md-6 service-item d-flex" data-aos="fade-up" data-aos-delay="200">
+                                <div class="icon flex-shrink-0"><i class="bi bi-card-checklist"></i></div>
+                                <div>
+                                    <h4 class="title">${tool}</h4>
+                                    <p class="description">Tool Experience (${rating}%)</p>
+                                </div>
+                            </div>
+                        `;
+
+                        let lauraskillHtml = `
+                            <div class="col-lg-6">
+                                <div class="pricing-item d-flex justify-content-between">
+                                    <h3>${tool} experience</h3>
+                                    <h4>${rating}%</h4>
+                                </div>
+                            </div>
+                        `;
+                            $('#dev_skills').append(toolHtml);
+                            $('#laura_skills').append(lauraskillHtml);
+                    }
+                }else{
+                    console.error("#dev_skills container not found.");
+                }
+            //     --------------------------------------------------------------------------------------------
             }
         },
         error: function(xhr, status, error) {
