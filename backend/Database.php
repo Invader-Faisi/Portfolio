@@ -26,12 +26,11 @@ class Database
             $query = "INSERT INTO users (name,username, email, password, plan) VALUES (?,?, ?, ?, ?)";
             $stmt = $this->conn->prepare($query);
             $stmt->execute([$name, $username, $email, $hashedPassword, $plan]);
-            
+
             return "success";
         } catch (PDOException $e) {
             return ['error' => $e->getMessage()];
         }
-
     }
 
     // Login Method
@@ -42,11 +41,11 @@ class Database
             $stmt = $this->conn->prepare($query);
             $stmt->execute([$username]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+
             if ($user && password_verify($password, $user['password'])) {
                 session_start();
                 $status = $user['status'];
-                if($status == 'Approved'){
+                if ($status == 'Approved') {
                     $_SESSION['user_id'] = $user['user_id'];
                     $_SESSION['name'] = $user['name'];
                     $_SESSION['role'] = $user['role'];
@@ -56,15 +55,15 @@ class Database
                     } else {
                         return ['user' => "user", 'status' => $status];
                     }
-                }else{
+                } else {
                     return ['user' => "user", 'status' => $status];
                 }
-            }else{
+            } else {
                 return ['message' => 'Email or Password is incorrect !!!'];
             }
         } catch (PDOException $e) {
-                return ['error' => $e->getMessage()];
-            }
+            return ['error' => $e->getMessage()];
+        }
     }
 
     // Logout Method
@@ -76,7 +75,8 @@ class Database
         return "success";
     }
 
-    function getUsers() {
+    function getUsers()
+    {
         try {
             $query = "SELECT user_id, name, username, email, role, plan, status FROM users";
             $stmt = $this->conn->prepare($query);
@@ -88,32 +88,47 @@ class Database
         }
     }
 
-    function updateUser($user_id,$user_status) {
+    function updateUser($user_id, $user_status)
+    {
         try {
             $query = "UPDATE users SET status = ? WHERE user_id = ?";
             $stmt = $this->conn->prepare($query);
-            $stmt->execute([$user_status,$user_id]);
-            
+            $stmt->execute([$user_status, $user_id]);
+
             return "success";
         } catch (PDOException $e) {
             return ['error' => $e->getMessage()];
         }
     }
 
-    function deleteUser($user_id){
+    function deleteUser($user_id)
+    {
         try {
             $query = "DELETE FROM users WHERE user_id = ?";
             $stmt = $this->conn->prepare($query);
             $stmt->execute([$user_id]);
-            
+
             return "success";
         } catch (PDOException $e) {
             return ['error' => $e->getMessage()];
         }
     }
 
-    function addPersonalInfo($selected_portfolio,$user_profession,$user_name,$user_email,$user_dob,
-        $user_age,$user_gender,$user_img,$user_social_fb,$user_social_tw,$user_social_in,$user_address,$user_cell){
+    function addPersonalInfo(
+        $selected_portfolio,
+        $user_profession,
+        $user_name,
+        $user_email,
+        $user_dob,
+        $user_age,
+        $user_gender,
+        $user_img,
+        $user_social_fb,
+        $user_social_tw,
+        $user_social_in,
+        $user_address,
+        $user_cell
+    ) {
 
         $user_id = $this->getSession();
 
@@ -135,11 +150,11 @@ class Database
 
         try {
             $result = $stmt->execute();
-            
-            if($result){
-                $result = $this->addSocialMedia($user_id,$user_social_fb,$user_social_tw,$user_social_in);
+
+            if ($result) {
+                $result = $this->addSocialMedia($user_id, $user_social_fb, $user_social_tw, $user_social_in);
                 return ($result) ? "success" : "error";
-            }else{
+            } else {
                 return "error";
             }
         } catch (PDOException $e) {
@@ -148,13 +163,13 @@ class Database
         }
     }
 
-    private function addSocialMedia($user_id,$user_social_fb,$user_social_tw,$user_social_in)
+    private function addSocialMedia($user_id, $user_social_fb, $user_social_tw, $user_social_in)
     {
         try {
             $query = "INSERT INTO social (user_id,social_fb, social_tw, social_in) VALUES (?,?,?,?)";
             $stmt = $this->conn->prepare($query);
-            $result = $stmt->execute([$user_id,$user_social_fb,$user_social_tw,$user_social_in]);
-            
+            $result = $stmt->execute([$user_id, $user_social_fb, $user_social_tw, $user_social_in]);
+
             if ($result) {
                 return $this->conn->lastInsertId();
             } else {
@@ -171,7 +186,7 @@ class Database
         try {
             $query = "UPDATE portfolios SET user_about = ? WHERE user_id = ?";
             $stmt = $this->conn->prepare($query);
-            $result = $stmt->execute([$user_self_para,$user_id]);
+            $result = $stmt->execute([$user_self_para, $user_id]);
 
             if ($result) {
                 return true;
@@ -204,13 +219,13 @@ class Database
             } else {
                 return "error";
             }
-
-        }catch (PDOException $e) {
+        } catch (PDOException $e) {
             return ['error' => $e->getMessage()];
         }
     }
 
-    public function getSkills(){
+    public function getSkills()
+    {
         $user_id = $this->getSession();
 
         try {
@@ -224,13 +239,13 @@ class Database
             $stmt = $this->conn->prepare($query);
             $stmt->execute([$user_id]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
-
-        }catch (PDOException $e) {
+        } catch (PDOException $e) {
             return ['error' => $e->getMessage()];
         }
     }
 
-    public function getTools(){
+    public function getTools()
+    {
         $user_id = $this->getSession();
 
         try {
@@ -244,13 +259,13 @@ class Database
             $stmt = $this->conn->prepare($query);
             $stmt->execute([$user_id]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
-
-        }catch (PDOException $e) {
+        } catch (PDOException $e) {
             return ['error' => $e->getMessage()];
         }
     }
 
-    public function getEducation(){
+    public function getEducation()
+    {
         $user_id = $this->getSession();
 
         try {
@@ -259,17 +274,17 @@ class Database
             $stmt->execute([$user_id]);
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $edu = array();
-            foreach ($result as $index => $row)
-            {
-                $edu['edu' .($index + 1)] = $row;
+            foreach ($result as $index => $row) {
+                $edu['edu' . ($index + 1)] = $row;
             }
             return $edu;
-        }catch (PDOException $e) {
+        } catch (PDOException $e) {
             return ['error' => $e->getMessage()];
         }
     }
 
-    public function getProfession(){
+    public function getProfession()
+    {
         $user_id = $this->getSession();
 
         try {
@@ -277,12 +292,13 @@ class Database
             $stmt = $this->conn->prepare($query);
             $stmt->execute([$user_id]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
-        }catch (PDOException $e) {
+        } catch (PDOException $e) {
             return ['error' => $e->getMessage()];
         }
     }
 
-    public function getAboutPara(){
+    public function getAboutPara()
+    {
         $user_id = $this->getSession();
 
         try {
@@ -290,7 +306,7 @@ class Database
             $stmt = $this->conn->prepare($query);
             $stmt->execute([$user_id]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
-        }catch (PDOException $e) {
+        } catch (PDOException $e) {
             return ['error' => $e->getMessage()];
         }
     }
@@ -303,13 +319,26 @@ class Database
             $stmt = $this->conn->prepare($query);
             $stmt->execute([$user_id]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
-        }catch (PDOException $e) {
+        } catch (PDOException $e) {
             return ['error' => $e->getMessage()];
         }
     }
 
-    public function editPersonalInfo($selected_portfolio, $user_profession, $user_name, $user_email, $user_dob,
-                                     $user_age, $user_gender, $user_img, $user_social_fb, $user_social_tw, $user_social_in, $user_address, $user_cell) {
+    public function editPersonalInfo(
+        $selected_portfolio,
+        $user_profession,
+        $user_name,
+        $user_email,
+        $user_dob,
+        $user_age,
+        $user_gender,
+        $user_img,
+        $user_social_fb,
+        $user_social_tw,
+        $user_social_in,
+        $user_address,
+        $user_cell
+    ) {
 
         $user_id = $this->getSession();
 
@@ -374,9 +403,8 @@ class Database
                 $stmt = $this->conn->prepare($query);
 
                 try {
-                    $result = $stmt->execute([$user_social_fb,$user_social_tw,$user_social_in,$user_id]);
-                }catch (PDOException $e)
-                {
+                    $result = $stmt->execute([$user_social_fb, $user_social_tw, $user_social_in, $user_id]);
+                } catch (PDOException $e) {
                     error_log($e->getMessage());
                     return ['error' => $e->getMessage()];
                 }
@@ -395,19 +423,17 @@ class Database
     {
         $user_id = $this->getSession();
 
-        $skills = explode(',',$skill);
-        $rating = explode(',',$skill_rating);
+        $skills = explode(',', $skill);
+        $rating = explode(',', $skill_rating);
 
-        if($todo == 'update')
-        {
+        if ($todo == 'update') {
             try {
                 $query = "DELETE FROM skills WHERE user_id = ?";
                 $stmt = $this->conn->prepare($query);
                 $stmt->execute([$user_id]);
-            }catch (PDOException $e) {
+            } catch (PDOException $e) {
                 print_r($e->getMessage());
             }
-
         }
         try {
             $query = "INSERT INTO skills (user_id, skill, skill_rating) VALUES (?, ?, ?)";
@@ -415,7 +441,7 @@ class Database
             for ($i = 0; $i < count($skills); $i++) {
                 $currentSkill = trim($skills[$i]);
                 $currentRating = trim($rating[$i]);
-                $result = $stmt->execute([$user_id,$currentSkill,$currentRating]);
+                $result = $stmt->execute([$user_id, $currentSkill, $currentRating]);
             }
             if ($result) {
                 return true;
@@ -427,21 +453,19 @@ class Database
         }
     }
 
-    public function Tools($tool,$tools_rating,$todo)
+    public function Tools($tool, $tools_rating, $todo)
     {
         $user_id = $this->getSession();
-        $tools = explode(',',$tool);
-        $rating = explode(',',$tools_rating);
-        if($todo == 'update')
-        {
+        $tools = explode(',', $tool);
+        $rating = explode(',', $tools_rating);
+        if ($todo == 'update') {
             try {
                 $query = "DELETE FROM tools WHERE user_id = ?";
                 $stmt = $this->conn->prepare($query);
                 $stmt->execute([$user_id]);
-            }catch (PDOException $e) {
+            } catch (PDOException $e) {
                 print_r($e->getMessage());
             }
-
         }
         try {
             $query = "INSERT INTO tools (user_id, tool, tool_rating) VALUES (?, ?, ?)";
@@ -449,7 +473,7 @@ class Database
             for ($i = 0; $i < count($tools); $i++) {
                 $currentTool = trim($tools[$i]);
                 $currentRating = trim($rating[$i]);
-                $result = $stmt->execute([$user_id,$currentTool,$currentRating]);
+                $result = $stmt->execute([$user_id, $currentTool, $currentRating]);
             }
             if ($result) {
                 return true;
@@ -462,20 +486,37 @@ class Database
     }
 
     public function Education(
-        $user_metric_subject, $user_metric_marks, $user_metric_from, $user_metric_to, $user_metric_institute,
-        $user_inter_subject, $user_inter_marks, $user_inter_from, $user_inter_to, $user_inter_institute,
-        $user_grad_subject, $user_grad_marks, $user_grad_from, $user_grad_to, $user_grad_institute,
-        $user_uni_subject, $user_uni_marks, $user_uni_from, $user_uni_to, $user_uni_institute, $todo
+        $user_metric_subject,
+        $user_metric_marks,
+        $user_metric_from,
+        $user_metric_to,
+        $user_metric_institute,
+        $user_inter_subject,
+        $user_inter_marks,
+        $user_inter_from,
+        $user_inter_to,
+        $user_inter_institute,
+        $user_grad_subject,
+        $user_grad_marks,
+        $user_grad_from,
+        $user_grad_to,
+        $user_grad_institute,
+        $user_uni_subject,
+        $user_uni_marks,
+        $user_uni_from,
+        $user_uni_to,
+        $user_uni_institute,
+        $todo
     ) {
         $user_id = $this->getSession();
 
-        $result = $this->EducationInsertion($user_id,"Metric",$user_metric_subject,$user_metric_marks,$user_metric_from,$user_metric_to,$user_metric_institute,$todo);
-        if($result){
-            $result = $this->EducationInsertion($user_id,"Intermediate",$user_inter_subject,$user_inter_marks,$user_inter_from,$user_inter_to,$user_inter_institute,$todo);
-            if($result){
-                $result = $this->EducationInsertion($user_id,"Graduation",$user_grad_subject,$user_grad_marks,$user_grad_from,$user_grad_to,$user_grad_institute,$todo);
-                if($result){
-                    $result = $this->EducationInsertion($user_id,"University",$user_uni_subject,$user_uni_marks,$user_uni_from,$user_uni_to,$user_uni_institute,$todo);
+        $result = $this->EducationInsertion($user_id, "Metric", $user_metric_subject, $user_metric_marks, $user_metric_from, $user_metric_to, $user_metric_institute, $todo);
+        if ($result) {
+            $result = $this->EducationInsertion($user_id, "Intermediate", $user_inter_subject, $user_inter_marks, $user_inter_from, $user_inter_to, $user_inter_institute, $todo);
+            if ($result) {
+                $result = $this->EducationInsertion($user_id, "Graduation", $user_grad_subject, $user_grad_marks, $user_grad_from, $user_grad_to, $user_grad_institute, $todo);
+                if ($result) {
+                    $result = $this->EducationInsertion($user_id, "University", $user_uni_subject, $user_uni_marks, $user_uni_from, $user_uni_to, $user_uni_institute, $todo);
                     if ($result) {
                         return true;
                     } else {
@@ -489,17 +530,17 @@ class Database
     }
 
 
-    private function EducationInsertion($user_id, $level, $sub, $marks, $from, $to, $school, $todo) {
+    private function EducationInsertion($user_id, $level, $sub, $marks, $from, $to, $school, $todo)
+    {
         try {
             if ($todo == 'add') {
                 $query = "INSERT INTO education (user_id, edu, edu_subject, edu_marks, edu_from, edu_to, edu_institue)
                       VALUES (?, ?, ?, ?, ?, ?, ?)";
                 $stmt = $this->conn->prepare($query);
                 $result = $stmt->execute([$user_id, $level, $sub, $marks, $from, $to, $school]);
-                if($result)
-                {
+                if ($result) {
                     return true;
-                }else{
+                } else {
                     return false;
                 }
             }
@@ -509,10 +550,9 @@ class Database
                       WHERE user_id = ? AND edu = ?";
                 $stmt = $this->conn->prepare($query);
                 $result = $stmt->execute([$sub, $marks, $from, $to, $school, $user_id, $level]);
-                if($result)
-                {
+                if ($result) {
                     return true;
-                }else{
+                } else {
                     return false;
                 }
             }
@@ -522,29 +562,44 @@ class Database
     }
 
 
-    public function Profession($user_professional_desig,$user_professional_from,$user_professional_to,
-                               $user_professional_institute,$user_professional_exp,$todo)
-    {
+    public function Profession(
+        $user_professional_desig,
+        $user_professional_from,
+        $user_professional_to,
+        $user_professional_institute,
+        $user_professional_exp,
+        $todo
+    ) {
         $user_id = $this->getSession();
         try {
             $result = "";
-            if($todo == 'add')
-            {
+            if ($todo == 'add') {
                 $query = "INSERT INTO profession (user_id,designation,profession_from,profession_to,
                         profession_company,profession_about) VALUES (?,?,?,?,?,?)";
                 $stmt = $this->conn->prepare($query);
-                $result = $stmt->execute([$user_id,$user_professional_desig,$user_professional_from,
-                    $user_professional_to,$user_professional_institute,$user_professional_exp]);
+                $result = $stmt->execute([
+                    $user_id,
+                    $user_professional_desig,
+                    $user_professional_from,
+                    $user_professional_to,
+                    $user_professional_institute,
+                    $user_professional_exp
+                ]);
             }
 
 
-            if($todo == 'update')
-            {
+            if ($todo == 'update') {
                 $query = "UPDATE profession SET designation = ?, profession_from = ?, profession_to = ?, profession_company = ?, 
                   profession_about = ? WHERE user_id = ? ";
                 $stmt = $this->conn->prepare($query);
-                $result = $stmt->execute([$user_professional_desig,$user_professional_from,
-                    $user_professional_to,$user_professional_institute,$user_professional_exp,$user_id]);
+                $result = $stmt->execute([
+                    $user_professional_desig,
+                    $user_professional_from,
+                    $user_professional_to,
+                    $user_professional_institute,
+                    $user_professional_exp,
+                    $user_id
+                ]);
             }
 
 
@@ -557,6 +612,55 @@ class Database
             return ['error' => $e->getMessage()];
         }
     }
+
+    public function getPrograms()
+    {
+        $user_id = $this->getSession();
+        try {
+            $query = "SELECT * FROM users WHERE user_id = ?";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([$user_id]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    public function updateProfile($name, $email, $plan, $username, $password)
+    {
+        $user_id = $this->getSession();
+        $query = "UPDATE users SET name = ?, email = ?, plan = ?, username = ?";
+        $params = [$name, $email, $plan, $username];
+
+        // Check if password is not empty
+        if (!empty($password)) {
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+            $query .= ", password = ?";
+            $params[] = $hashedPassword;
+        }
+
+        $query .= " WHERE user_id = ?";
+        $params[] = $user_id;
+
+        try {
+            $stmt = $this->conn->prepare($query);
+            $result = $stmt->execute($params);
+            if ($result) {
+                unset($_SESSION['name']);
+                unset($_SESSION['plan']);
+                $_SESSION['name'] = ucwords($name);
+                $_SESSION['plan'] = ucfirst($plan);
+                return true;
+            } else {
+                return false;
+            }
+        } catch (PDOException $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+
+
     private function getSession()
     {
         if (session_status() === PHP_SESSION_NONE) {
@@ -564,7 +668,6 @@ class Database
         }
         return $_SESSION['user_id'];
     }
-
 }
 
 
@@ -572,8 +675,3 @@ class Database
 //        var_dump($skills);
 //        echo '</pre>';
 //        $result = false;
-
-
-
-
-

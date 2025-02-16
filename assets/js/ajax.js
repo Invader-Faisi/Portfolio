@@ -101,7 +101,21 @@ $(document).ready(function() {
                     url: 'components/section-plans.php',  // The file to load dynamically
                     type: 'GET',
                     success: function(response) {
-                        // Inject the dashboard content into the #content div
+                        $('#portfolio').empty();
+                        $('#portfolio').html(response);
+
+                        $('#portfolio').show();
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Failed to load Plans: ' + error);
+                    }
+                });
+                break;
+            case 'profile':
+                $.ajax({
+                    url: 'components/profile.php',  // The file to load dynamically
+                    type: 'GET',
+                    success: function(response) {
                         $('#portfolio').empty();
                         $('#portfolio').html(response);
 
@@ -117,7 +131,6 @@ $(document).ready(function() {
                     url: 'components/personelInfo.php',  // The file to load dynamically
                     type: 'GET',
                     success: function(response) {
-                        // Inject the dashboard content into the #content div
                         $('#portfolio').empty();
                         $('#portfolio').html(response);
 
@@ -133,7 +146,6 @@ $(document).ready(function() {
                     url: 'components/about.php',  // The file to load dynamically
                     type: 'GET',
                     success: function(response) {
-                        // Inject the dashboard content into the #content div
                         $('#portfolio').empty();
                         $('#portfolio').html(response);
 
@@ -149,7 +161,6 @@ $(document).ready(function() {
                     url: 'components/myPortfolios.php',  // The file to load dynamically
                     type: 'GET',
                     success: function(response) {
-                        // Inject the dashboard content into the #content div
                         $('#portfolio').empty();
                         $('#portfolio').html(response);
 

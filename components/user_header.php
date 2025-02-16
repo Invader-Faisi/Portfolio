@@ -56,6 +56,13 @@
           </li>
 
           <li class="nav-item">
+              <a class="nav-link collapsed" href="#" data-id="profile">
+                  <i class="bi bi-person"></i>
+                  <span>Personal Profile</span>
+              </a>
+          </li>
+
+          <li class="nav-item">
               <a class="nav-link collapsed" href="#" data-id="personelInfo">
                   <i class="bi bi-person-circle"></i>
                   <span>Personal Information</span>
@@ -75,6 +82,7 @@
                   <span>Portfolios</span>
               </a>
           </li>
+
       </ul>
 
   </aside><!-- End Sidebar-->
